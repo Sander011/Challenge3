@@ -25,7 +25,7 @@ public class EpicProtocol implements IMACProtocol {
             // No data to send, just be quiet
             if (localQueueLength == 0) {
                 System.out.println("SLOT - No data to send.");
-                return new TransmissionInfo(TransmissionType.Silent, 0);
+                return new TransmissionInfo(TransmissionType.Silent, 100);
             } else if (controlInformation == 0 || previousMediumState == MediumState.Idle) {
                 state = State.FIRSTSEND;
                 System.out.println("Send first packet");
@@ -42,11 +42,11 @@ public class EpicProtocol implements IMACProtocol {
             }
             //Als er wel een collisions was, zet de timer op een random getal tussen 0 en 4.
             //Dan wachten enzo
-            else if (previousMediumState == MediumState.Collision) {
+            else {
                 state = State.WAITING;
                 System.out.println("Start waiting");
                 waitingTimeSlots = (int) Math.round(Math.random() * 4);
-                return new TransmissionInfo(TransmissionType.Silent, 0);
+                return new TransmissionInfo(TransmissionType.Silent, 100);
             }
         }
 
@@ -58,7 +58,7 @@ public class EpicProtocol implements IMACProtocol {
                 return new TransmissionInfo(TransmissionType.Data, localQueueLength);
             } else {
                 System.out.println("Continue waiting");
-                return new TransmissionInfo(TransmissionType.Silent, 0);
+                return new TransmissionInfo(TransmissionType.Silent, 100);
             }
         }
 
@@ -67,13 +67,13 @@ public class EpicProtocol implements IMACProtocol {
             if(localQueueLength == 0) {
                 state = State.INITIAL;
                 System.out.println("Completed current queue");
-                return new TransmissionInfo(TransmissionType.Silent, 0);
+                return new TransmissionInfo(TransmissionType.Silent, 100);
             }
             return new TransmissionInfo(TransmissionType.Data, localQueueLength);
         }
 
 
         System.out.println(state);
-        return new TransmissionInfo(TransmissionType.Silent, 0);
+        return new TransmissionInfo(TransmissionType.Silent, 100);
     }
 }
