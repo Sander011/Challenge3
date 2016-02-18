@@ -32,28 +32,29 @@ public class EpicProtocol implements IMACProtocol {
         
         //Als deze aan het zenden is, blijf doorzenden totdat de queue length 0 is
         if (sending) {
-        	return new TransmissionInfo(TransmissionType.Data, localQueueLength);
+            System.out.println("Sending...");
+            return new TransmissionInfo(TransmissionType.Data, localQueueLength);
         }
         
         //Als deze een queue heeft en in het vorige timeslot geen pakketje heeft ontvangen
         //Verstuur een pakketje
         if (!firstPacketSent && !sending && (controlInformation == 0 || previousMediumState == MediumState.Idle)) {
         	firstPacketSent = true;
-        	return new TransmissionInfo(TransmissionType.Data, localQueueLength);
+            System.out.println("Send first packet");
+            return new TransmissionInfo(TransmissionType.Data, localQueueLength);
         }
-        
-        
-        
-        
+
         //Als deze het eerste pakketje heeft verzonden en er is geen collision, zet sending op true
         if (firstPacketSent && previousMediumState != MediumState.Collision) {
         	sending = true;
-        	return new TransmissionInfo(TransmissionType.Data, localQueueLength);
+            System.out.println("Start sending");
+            return new TransmissionInfo(TransmissionType.Data, localQueueLength);
         } 
         //Als er wel een collisions was, zet de timer op een random getal tussen 0 en 4.
         //Dan wachten enzo
         else if (firstPacketSent && previousMediumState == MediumState.Collision) {
-        	waitingTimeSlots = (int) Math.round(Math.random() * 4);
+            System.out.println("Start waiting");
+            waitingTimeSlots = (int) Math.round(Math.random() * 4);
         }
         
         //Wachten
@@ -61,13 +62,15 @@ public class EpicProtocol implements IMACProtocol {
         if (firstPacketSent && !sending) {
         	waitingTimeSlots--;
         	if (waitingTimeSlots <= 0){
-        		return new TransmissionInfo(TransmissionType.Data, localQueueLength);
+                System.out.println("Waited long enough, send!");
+                return new TransmissionInfo(TransmissionType.Data, localQueueLength);
         	} else {
-        		return new TransmissionInfo(TransmissionType.Silent, 0);
+                System.out.println("Continue waiting");
+                return new TransmissionInfo(TransmissionType.Silent, 0);
         	}
         }
-        
-        
+
+        System.out.println("Meh");
         return new TransmissionInfo(TransmissionType.Silent, 0);
     }
 }
