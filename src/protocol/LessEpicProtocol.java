@@ -16,12 +16,9 @@ public class LessEpicProtocol implements IMACProtocol {
 	boolean[] nodesWithQueue = {false, false, false, false};
 	
 	private int node = 0;
-	int count = -1;
 	int counter = 0;
-	int waitingTime = (int) Math.round(Math.random() * 4);
 	State state = State.INITIAL;
 	boolean tried = false;
-	boolean stopWaiting = false;
 	boolean isSending = false;
 
 	int previousToken = -1;
@@ -42,13 +39,13 @@ public class LessEpicProtocol implements IMACProtocol {
 			int temp = counter;
 			
 			for (int i=0; i<4; i++) {
-				temp = temp + 1 % 4;
+				temp = (temp + 1) % 4;
 				if (nodesWithQueue[temp]){
 					return temp;
 				}
 			}
 			
-			temp = (temp + 1) % 4;
+			temp = (counter + 1) % 4;
 			return temp;
 		}
 	}
