@@ -67,7 +67,7 @@ public class EpicProtocol implements IMACProtocol {
                 System.out.println("Waited long enough, send!");
                 state = State.FIRSTSEND;
                 return new TransmissionInfo(TransmissionType.Data, localQueueLength);
-            } else if (waitingTimeSlots <= 0) {
+            } else if (waitingTimeSlots <= 0 || previousMediumState == MediumState.Succes) {
             	currentWaiting *= 2;
                 state = State.INITIAL;
                 return new TransmissionInfo(TransmissionType.Silent, 0);
