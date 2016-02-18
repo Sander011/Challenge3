@@ -86,13 +86,17 @@ public class EpicProtocol implements IMACProtocol {
             System.out.println("Sending...");
             return new TransmissionInfo(TransmissionType.Data, localQueueLength);
         } else if (state.equals(State.AFTERSEND)) {
+            if(controlInformation == 12345) {
+                System.out.println("Wait one turn");
+                return new TransmissionInfo(TransmissionType.Silent, 0);
+            }
             if(previousMediumState == MediumState.Idle) {
                 state = State.FIRSTSEND;
                 return new TransmissionInfo(TransmissionType.Data, localQueueLength);
             } else if (previousMediumState == MediumState.Collision) {
                 state = State.WAITING;
                 System.out.println("Start waiting");
-                waitingTimeSlots = (int) Math.round(Math.random() * WAIT_TIME);
+                waitingTimeSlots = 4;
                 return new TransmissionInfo(TransmissionType.Silent, 0);
             } else {
                 System.out.println("Other node sending succesfully");
