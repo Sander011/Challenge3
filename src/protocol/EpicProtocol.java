@@ -75,8 +75,7 @@ public class EpicProtocol implements IMACProtocol {
             counter++;
             if (counter >= MAX_SEND) {
                 counter = 0;
-                waitingTimeSlots = (int) Math.round(Math.random() * WAIT_TIME);
-                state = State.WAITING;
+                state = State.AFTERSEND;
                 System.out.println("Sending limit reached");
                 return new TransmissionInfo(TransmissionType.Data, 12345);
             }else if(localQueueLength == 0) {
@@ -86,6 +85,16 @@ public class EpicProtocol implements IMACProtocol {
             }
             System.out.println("Sending...");
             return new TransmissionInfo(TransmissionType.Data, localQueueLength);
+        } else if (state.equals(State.AFTERSEND)) {
+            if(previousMediumState == MediumState.Idle) {
+                state = State.FIRSTSEND;
+                return new TransmissionInfo(TransmissionType.Data, localQueueLength);
+            } else if (previousMediumState == MediumState.Collision) {
+                state = State.WAITING;
+                System.out.println("Start waiting");
+                waitingTimeSlots = (int) Math.round(Math.random() * WAIT_TIME);
+                return new TransmissionInfo(TransmissionType.Silent, 0);
+            }
         }
 
 
