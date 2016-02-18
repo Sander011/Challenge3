@@ -39,17 +39,17 @@ public class EpicProtocol implements IMACProtocol {
                 state = State.FIRSTSEND;
                 System.out.println("Send first packet");
                 return new TransmissionInfo(TransmissionType.Data, localQueueLength);
-            } else if (controlInformation == HEADER_LAST_PACKET) {
-                System.out.println("Sending limit reached, try sending");
-                state = State.FIRSTSEND;
-                return new TransmissionInfo(TransmissionType.Data, localQueueLength);
             } else {
                 System.out.println("Someone is sending packets :(");
                 return new TransmissionInfo(TransmissionType.Silent, 0);
             }
         } else if (state.equals(State.FIRSTSEND)) {
             //Als deze het eerste pakketje heeft verzonden en er is geen collision, zet sending op true
-            if (previousMediumState != MediumState.Collision) {
+            if(localQueueLength < 1) {
+                state = State.INITIAL;
+                System.out.println("Nothing to send");
+                return new TransmissionInfo(TransmissionType.Silent, 0);
+            }else if (previousMediumState != MediumState.Collision) {
                 state = State.SENDING;
                 System.out.println("Start sending");
                 return new TransmissionInfo(TransmissionType.Data, localQueueLength);
@@ -82,6 +82,10 @@ public class EpicProtocol implements IMACProtocol {
                 return new TransmissionInfo(TransmissionType.Silent, 0);
             }
         } else if (state.equals(State.SENDING)) {
+            if(previousMediumState == MediumState.Collision) {
+                state = State.INITIAL;
+                return new TransmissionInfo(TransmissionType.Silent, 0);
+            }
             counter++;
             currentWaiting = WAIT_TIME;
             if (localQueueLength == 0) {
