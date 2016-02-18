@@ -14,6 +14,7 @@ public class EpicProtocol implements IMACProtocol {
 
     int currentWaiting;
     int counter;
+    int count = 0;
     int waitingTimeSlots;
     State state;
 
@@ -89,6 +90,7 @@ public class EpicProtocol implements IMACProtocol {
                 return new TransmissionInfo(TransmissionType.NoData, HEADER_LAST_PACKET);
             }else if(counter >= MAX_SEND) {
                 counter = 0;
+                count++;
                 state = State.AFTERSEND;
                 System.out.println("Sending limit reached");
                 return new TransmissionInfo(TransmissionType.Data, HEADER_LAST_PACKET);
@@ -96,8 +98,9 @@ public class EpicProtocol implements IMACProtocol {
             System.out.println("Sending...");
             return new TransmissionInfo(TransmissionType.Data, localQueueLength);
         } else if (state.equals(State.AFTERSEND)) {
-            if(controlInformation == HEADER_LAST_PACKET) {
+            if(count > 0) {
                 System.out.println("Wait one turn");
+                count = 0;
                 if(localQueueLength == 0) {
                     state = State.INITIAL;
                 }
