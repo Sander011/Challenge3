@@ -7,15 +7,11 @@ import java.util.Random;
  */
 public class EpicProtocol implements IMACProtocol {
 
-	boolean firstPacketSent;
-	boolean sending;
 	int waitingTimeSlots;
     State state;
 	
 	
 	public EpicProtocol() {
-		firstPacketSent = false;
-		sending = false;
         state = State.INITIAL;
 		
 	}
@@ -29,11 +25,8 @@ public class EpicProtocol implements IMACProtocol {
             // No data to send, just be quiet
             if (localQueueLength == 0) {
                 System.out.println("SLOT - No data to send.");
-                firstPacketSent = false;
-                sending = false;
                 return new TransmissionInfo(TransmissionType.Silent, 0);
-            } else if (!firstPacketSent && !sending && (controlInformation == 0 || previousMediumState == MediumState.Idle)) {
-                firstPacketSent = true;
+            } else if (controlInformation == 0 || previousMediumState == MediumState.Idle) {
                 state = State.FIRSTSEND;
                 System.out.println("Send first packet");
                 return new TransmissionInfo(TransmissionType.Data, localQueueLength);
@@ -42,15 +35,14 @@ public class EpicProtocol implements IMACProtocol {
 
         else if (state.equals(State.FIRSTSEND)) {
             //Als deze het eerste pakketje heeft verzonden en er is geen collision, zet sending op true
-            if (firstPacketSent && previousMediumState != MediumState.Collision) {
-                sending = true;
+            if (previousMediumState != MediumState.Collision) {
                 state = State.SENDING;
                 System.out.println("Start sending");
                 return new TransmissionInfo(TransmissionType.Data, localQueueLength);
             }
             //Als er wel een collisions was, zet de timer op een random getal tussen 0 en 4.
             //Dan wachten enzo
-            else if (firstPacketSent && previousMediumState == MediumState.Collision) {
+            else if (previousMediumState == MediumState.Collision) {
                 state = State.WAITING;
                 System.out.println("Start waiting");
                 waitingTimeSlots = (int) Math.round(Math.random() * 4);
@@ -80,7 +72,8 @@ public class EpicProtocol implements IMACProtocol {
             return new TransmissionInfo(TransmissionType.Data, localQueueLength);
         }
 
-        System.out.println("Meh");
+
+        System.out.println(state);
         return new TransmissionInfo(TransmissionType.Silent, 0);
     }
 }
