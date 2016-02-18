@@ -12,6 +12,7 @@ public class EpicProtocol implements IMACProtocol {
     private final int WAIT_TIME = 4;
     private final int HEADER_LAST_PACKET = 12345;
 
+    int currentWaiting;
     int counter;
     int waitingTimeSlots;
     State state;
