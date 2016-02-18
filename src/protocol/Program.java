@@ -21,7 +21,7 @@ public class Program implements Runnable {
 	private static String password = "1725807";
 
 	// Change to your protocol implementation
-	private static IMACProtocol protocol = new EpicProtocol();
+	private static IMACProtocol protocol = new LessEpicProtocol();
 
 	// Challenge server address
 	private static String serverAddress = "netsys.student.utwente.nl";

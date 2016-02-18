@@ -8,7 +8,7 @@ import java.util.Random;
 public class EpicProtocol implements IMACProtocol {
 
 
-    private final int MAX_SEND = (int) Math.pow(2, 3);
+    private final int MAX_SEND = 8;
     private final int WAIT_TIME = 4;
     private final int HEADER_LAST_PACKET = 12345;
 
@@ -36,6 +36,8 @@ public class EpicProtocol implements IMACProtocol {
                 System.out.println("SLOT - No data to send.");
                 return new TransmissionInfo(TransmissionType.Silent, 0);
             } else if (controlInformation == HEADER_LAST_PACKET || previousMediumState == MediumState.Idle) {
+                System.out.println(controlInformation);
+                System.out.println(previousMediumState);
                 state = State.FIRSTSEND;
                 System.out.println("Send first packet");
                 return new TransmissionInfo(TransmissionType.Data, localQueueLength);
@@ -89,6 +91,7 @@ public class EpicProtocol implements IMACProtocol {
             counter++;
             currentWaiting = WAIT_TIME;
             if (localQueueLength == 0) {
+                counter = 0;
                 state = State.INITIAL;
                 System.out.println("Completed current queue");
                 return new TransmissionInfo(TransmissionType.NoData, HEADER_LAST_PACKET);
