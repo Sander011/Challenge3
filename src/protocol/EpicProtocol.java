@@ -25,7 +25,7 @@ public class EpicProtocol implements IMACProtocol {
             // No data to send, just be quiet
             if (localQueueLength == 0) {
                 System.out.println("SLOT - No data to send.");
-                return new TransmissionInfo(TransmissionType.Silent, 100);
+                return new TransmissionInfo(TransmissionType.Silent, 0);
             } else if (controlInformation == 0 || previousMediumState == MediumState.Idle) {
                 state = State.FIRSTSEND;
                 System.out.println("Send first packet");
@@ -46,20 +46,23 @@ public class EpicProtocol implements IMACProtocol {
                 state = State.WAITING;
                 System.out.println("Start waiting");
                 waitingTimeSlots = (int) Math.round(Math.random() * 4);
-                return new TransmissionInfo(TransmissionType.Silent, 100);
+                return new TransmissionInfo(TransmissionType.Silent, 0);
             }
         }
 
         else if (state.equals(State.WAITING)) {
             waitingTimeSlots--;
-            if (waitingTimeSlots <= 0){
+            if (waitingTimeSlots <= 0 && previousMediumState == MediumState.Idle){
                 System.out.println("Waited long enough, send!");
                 state = State.FIRSTSEND;
                 return new TransmissionInfo(TransmissionType.Data, localQueueLength);
+            } else if (waitingTimeSlots <= 0) {
+                state = State.INITIAL;
+                return new TransmissionInfo(TransmissionType.Silent, 0);
             } else {
-                System.out.println("Continue waiting");
-                return new TransmissionInfo(TransmissionType.Silent, 100);
-            }
+                    System.out.println("Continue waiting");
+                    return new TransmissionInfo(TransmissionType.Silent, 0);
+                }
         }
 
         else if (state.equals(State.SENDING)) {
@@ -67,13 +70,13 @@ public class EpicProtocol implements IMACProtocol {
             if(localQueueLength == 0) {
                 state = State.INITIAL;
                 System.out.println("Completed current queue");
-                return new TransmissionInfo(TransmissionType.Silent, 100);
+                return new TransmissionInfo(TransmissionType.Silent, 0);
             }
             return new TransmissionInfo(TransmissionType.Data, localQueueLength);
         }
 
 
         System.out.println(state);
-        return new TransmissionInfo(TransmissionType.Silent, 100);
+        return new TransmissionInfo(TransmissionType.Silent, 0);
     }
 }
