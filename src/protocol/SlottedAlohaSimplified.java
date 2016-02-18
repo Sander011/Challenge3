@@ -19,7 +19,7 @@ public class SlottedAlohaSimplified implements IMACProtocol {
 		}
 
 		// Randomly transmit with 60% probability
-		if (new Random().nextInt(100) < 60) {
+		if (new Random().nextInt(100) < 38) {
 			System.out.println("SLOT - Sending data and hope for no collision.");
 			return new TransmissionInfo(TransmissionType.Data, 0);
 		} else {
