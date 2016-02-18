@@ -24,7 +24,7 @@ public class EpicProtocol implements IMACProtocol {
             return new TransmissionInfo(TransmissionType.Data, 0);
         } else {
             System.out.println("SLOT - Not sending data to give room for others.");
-            return new TransmissionInfo(TransmissionType.Silent, 0);
+            return new TransmissionInfo(TransmissionType.Silent, localQueueLength);
         }
 
     }
