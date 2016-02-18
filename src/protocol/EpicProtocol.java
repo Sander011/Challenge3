@@ -10,6 +10,7 @@ public class EpicProtocol implements IMACProtocol {
 
     private final int MAX_SEND = (int) Math.pow(2, 3);
     private final int WAIT_TIME = 4;
+    private final int HEADER_LAST_PACKET = 12345;
 
     int counter;
     int waitingTimeSlots;
@@ -31,11 +32,11 @@ public class EpicProtocol implements IMACProtocol {
             if (localQueueLength == 0) {
                 System.out.println("SLOT - No data to send.");
                 return new TransmissionInfo(TransmissionType.Silent, 0);
-            } else if (controlInformation == 0 || previousMediumState == MediumState.Idle) {
+            } else if (controlInformation == HEADER_LAST_PACKET || previousMediumState == MediumState.Idle) {
                 state = State.FIRSTSEND;
                 System.out.println("Send first packet");
                 return new TransmissionInfo(TransmissionType.Data, localQueueLength);
-            } else if (controlInformation == 12345) {
+            } else if (controlInformation == HEADER_LAST_PACKET) {
                 System.out.println("Sending limit reached, try sending");
                 state = State.FIRSTSEND;
                 return new TransmissionInfo(TransmissionType.Data, localQueueLength);
@@ -76,17 +77,17 @@ public class EpicProtocol implements IMACProtocol {
             if (localQueueLength == 0) {
                 state = State.INITIAL;
                 System.out.println("Completed current queue");
-                return new TransmissionInfo(TransmissionType.NoData, 12345);
+                return new TransmissionInfo(TransmissionType.NoData, HEADER_LAST_PACKET);
             }else if(counter >= MAX_SEND) {
                 counter = 0;
                 state = State.AFTERSEND;
                 System.out.println("Sending limit reached");
-                return new TransmissionInfo(TransmissionType.Data, 12345);
+                return new TransmissionInfo(TransmissionType.Data, HEADER_LAST_PACKET);
             }
             System.out.println("Sending...");
             return new TransmissionInfo(TransmissionType.Data, localQueueLength);
         } else if (state.equals(State.AFTERSEND)) {
-            if(controlInformation == 12345) {
+            if(controlInformation == HEADER_LAST_PACKET) {
                 System.out.println("Wait one turn");
                 if(localQueueLength == 0) {
                     state = State.INITIAL;
