@@ -73,15 +73,15 @@ public class EpicProtocol implements IMACProtocol {
             }
         } else if (state.equals(State.SENDING)) {
             counter++;
-            if (counter >= MAX_SEND) {
+            if (localQueueLength == 0) {
+                state = State.INITIAL;
+                System.out.println("Completed current queue");
+                return new TransmissionInfo(TransmissionType.NoData, 12345);
+            }else if(counter >= MAX_SEND) {
                 counter = 0;
                 state = State.AFTERSEND;
                 System.out.println("Sending limit reached");
                 return new TransmissionInfo(TransmissionType.Data, 12345);
-            }else if(localQueueLength == 0) {
-                state = State.INITIAL;
-                System.out.println("Completed current queue");
-                return new TransmissionInfo(TransmissionType.NoData, 12345);
             }
             System.out.println("Sending...");
             return new TransmissionInfo(TransmissionType.Data, localQueueLength);
@@ -93,6 +93,10 @@ public class EpicProtocol implements IMACProtocol {
                 state = State.WAITING;
                 System.out.println("Start waiting");
                 waitingTimeSlots = (int) Math.round(Math.random() * WAIT_TIME);
+                return new TransmissionInfo(TransmissionType.Silent, 0);
+            } else {
+                System.out.println("Other node sending succesfully");
+                state = State.INITIAL;
                 return new TransmissionInfo(TransmissionType.Silent, 0);
             }
         }
