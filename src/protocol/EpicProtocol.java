@@ -79,7 +79,11 @@ public class EpicProtocol implements IMACProtocol {
                 return new TransmissionInfo(TransmissionType.NoData, 12345);
             }else if(counter >= MAX_SEND) {
                 counter = 0;
-                state = State.AFTERSEND;
+                if(localQueueLength == 1) {
+                    state = State.INITIAL;
+                } else {
+                    state = State.AFTERSEND;
+                }
                 System.out.println("Sending limit reached");
                 return new TransmissionInfo(TransmissionType.Data, 12345);
             }
