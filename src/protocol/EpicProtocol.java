@@ -19,6 +19,7 @@ public class EpicProtocol implements IMACProtocol {
 
 
     public EpicProtocol() {
+    	currentWaiting = WAIT_TIME;
         state = State.INITIAL;
         counter = 0;
     }
@@ -57,7 +58,7 @@ public class EpicProtocol implements IMACProtocol {
             else {
                 state = State.WAITING;
                 System.out.println("Start waiting");
-                waitingTimeSlots = (int) Math.round(Math.random() * WAIT_TIME);
+                waitingTimeSlots = (int) Math.round(Math.random() * currentWaiting);
                 return new TransmissionInfo(TransmissionType.Silent, 0);
             }
         } else if (state.equals(State.WAITING)) {
@@ -67,6 +68,7 @@ public class EpicProtocol implements IMACProtocol {
                 state = State.FIRSTSEND;
                 return new TransmissionInfo(TransmissionType.Data, localQueueLength);
             } else if (waitingTimeSlots <= 0) {
+            	currentWaiting *= 2;
                 state = State.INITIAL;
                 return new TransmissionInfo(TransmissionType.Silent, 0);
             } else {
@@ -75,6 +77,7 @@ public class EpicProtocol implements IMACProtocol {
             }
         } else if (state.equals(State.SENDING)) {
             counter++;
+            currentWaiting = WAIT_TIME;
             if (localQueueLength == 0) {
                 state = State.INITIAL;
                 System.out.println("Completed current queue");
